@@ -1,6 +1,6 @@
 // lib/screens/choose_table_screen.dart
 import 'package:flutter/material.dart';
-import '../data/data_manager.dart' as dm; // <-- FIX: Menggunakan prefix 'dm'
+import '../data/data_manager.dart' as dm; // <-- Prefix 'dm'
 
 class ChooseTableScreen extends StatefulWidget {
   final bool isBooking;
@@ -11,11 +11,16 @@ class ChooseTableScreen extends StatefulWidget {
 }
 
 class _ChooseTableScreenState extends State<ChooseTableScreen> {
-  // FIX: Menggunakan dm.Table
+  // Method untuk membangun tampilan item meja
   Widget _buildTableItem(BuildContext context, dm.Table table) {
     Color statusColor = table.isOccupied
         ? Colors.red.shade700
         : Colors.green.shade700;
+
+    // Hitung jumlah booking yang statusnya 'Queueing' untuk meja ini
+    int queueCount = dm.DataManager.userBookings
+        .where((b) => b.tableNumber == table.number && b.status == 'Queueing')
+        .length;
 
     void handleTap() {
       if (!widget.isBooking) return;
@@ -53,10 +58,9 @@ class _ChooseTableScreenState extends State<ChooseTableScreen> {
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 5),
+            // TAMPILKAN STATUS DAN JUMLAH ANTRIAN
             Text(
-              table.isOccupied
-                  ? 'Occupied (Queue: ${dm.DataManager.bookingQueue.size})'
-                  : 'Available',
+              table.isOccupied ? 'Occupied (Queue: $queueCount)' : 'Available',
               style: TextStyle(
                 fontSize: 12,
                 color: statusColor,
@@ -69,7 +73,6 @@ class _ChooseTableScreenState extends State<ChooseTableScreen> {
     );
   }
 
-  // FIX: Menggunakan dm.Table
   void _showQueueDialog(BuildContext context, dm.Table table) {
     showDialog(
       context: context,
@@ -94,6 +97,8 @@ class _ChooseTableScreenState extends State<ChooseTableScreen> {
       },
     );
   }
+
+  // Fungsi _refresh() sudah dihapus dari sini
 
   @override
   Widget build(BuildContext context) {
@@ -122,10 +127,7 @@ class _ChooseTableScreenState extends State<ChooseTableScreen> {
                   crossAxisSpacing: 15,
                   mainAxisSpacing: 15,
                 ),
-                itemCount: dm
-                    .DataManager
-                    .cafeTables
-                    .length, // FIX: Menggunakan dm.DataManager
+                itemCount: dm.DataManager.cafeTables.length,
                 itemBuilder: (context, index) {
                   return _buildTableItem(
                     context,

@@ -1,4 +1,3 @@
-// lib/data/booking_model.dart
 class BookingModel {
   final String id;
   final String tableNumber;

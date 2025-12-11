@@ -1,4 +1,3 @@
-// lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:async'; // Untuk Timer
 
@@ -19,19 +18,19 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // 1. Konfigurasi Animasi (Durasi 2 detik)
+    // Animasi Durasi 2 detik
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     );
 
-    // Animasi Scale (Membesar dari 0.5 ke 1.0)
+    // Animasi Scale
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
-    // Animasi Fade (Transparansi dari 0.0 ke 1.0)
+    // Animasi Fade
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -40,9 +39,9 @@ class _SplashScreenState extends State<SplashScreen>
     // Mulai animasi
     _controller.forward();
 
-    // 2. Navigasi otomatis setelah 3 detik
+    //  Navigasi otomatis setelah 3 detik
     Timer(const Duration(seconds: 3), () {
-      // Pindah ke halaman Login dan hapus Splash Screen dari history navigasi
+      // Pindah ke halaman Login
       Navigator.pushReplacementNamed(context, '/login');
     });
   }
@@ -65,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo dengan Animasi Scale & Fade
+            // Logo dengan Animasi
             ScaleTransition(
               scale: _scaleAnimation,
               child: FadeTransition(
@@ -93,7 +92,7 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 20),
 
-            // Teks dengan Animasi Fade
+            // Teks dengan Animasi
             FadeTransition(
               opacity: _fadeAnimation,
               child: const Column(

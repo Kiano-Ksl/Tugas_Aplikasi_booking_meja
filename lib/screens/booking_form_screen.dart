@@ -1,7 +1,6 @@
 // lib/screens/booking_form_screen.dart
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart'; // Dihapus untuk menghindari error 'intl'
-import '../data/data_manager.dart' as dm; // <-- FIX: Menggunakan prefix 'dm'
+import '../data/data_manager.dart' as dm;
 
 class BookingFormScreen extends StatefulWidget {
   const BookingFormScreen({super.key});
@@ -78,7 +77,6 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // FIX: Menggunakan dm.Table
     final table = ModalRoute.of(context)?.settings.arguments as dm.Table?;
     final isQueue = table?.isOccupied ?? false;
 
@@ -112,7 +110,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               icon: Icons.phone,
             ),
 
-            // Pemilihan Tanggal (FIX: Menggunakan format string sederhana)
+            // Pemilihan Tanggal
             _buildTimePickerTile(
               label: 'Booking Date',
               icon: Icons.calendar_today,
@@ -122,7 +120,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               onTap: () => _selectDate(context),
             ),
 
-            // Pemilihan Waktu Mulai dan Selesai
+            // Pemilihan Waktu
             _buildTimePickerTile(
               label: 'Start Time',
               icon: Icons.access_time,
@@ -141,9 +139,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                // --- BAGIAN INI YANG DIPERBARUI SESUAI PERMINTAAN ---
                 onPressed: () {
-                  // 1. Validasi sederhana
+                  //  Validasi sederhana
                   if (_nameController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Please enter guest name")),
@@ -151,12 +148,12 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                     return;
                   }
 
-                  // 2. Update Status Meja: Langsung jadi merah jika bukan antrian
+                  //  Update Status Meja: Langsung jadi merah
                   if (!isQueue && table != null) {
                     table.isOccupied = true; // UBAH JADI MERAH
                   }
 
-                  // 3. Kirim data lengkap ke Payment Summary
+                  //  Kirim data lengkap ke Payment Summary
                   Navigator.pushNamed(
                     context,
                     '/payment_summary',
@@ -170,7 +167,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                     },
                   );
                 },
-                // ----------------------------------------------------
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,

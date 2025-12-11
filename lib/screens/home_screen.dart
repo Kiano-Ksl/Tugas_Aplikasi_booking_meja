@@ -1,4 +1,3 @@
-// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import '../widgets/action_card.dart';
 
@@ -62,7 +61,7 @@ class HomeScreen extends StatelessWidget {
                 ActionCard(
                   icon: Icons.bookmark_border,
                   title: 'My Bookings',
-                  subtitle: '1 reservation',
+                  subtitle: ' reservation',
                   onTap: () => Navigator.pushNamed(context, '/my_bookings'),
                 ),
               ],

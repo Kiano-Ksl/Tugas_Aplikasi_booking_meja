@@ -1,4 +1,3 @@
-// lib/data/booking_queue.dart
 import 'booking_model.dart';
 import 'queue_node.dart';
 

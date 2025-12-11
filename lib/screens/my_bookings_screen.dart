@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../data/data_manager.dart' as dm;
 import '../data/booking_model.dart';
+import 'booking_ticket_screen.dart'; // <--- IMPORT FILE BARU
 
 // --- WIDGET CARD UNTUK SETIAP BOOKING ---
 class BookingCard extends StatelessWidget {
@@ -72,7 +73,7 @@ class BookingCard extends StatelessWidget {
             ),
             const Divider(),
 
-            // Detail Booking (Menggunakan ListTile agar lebih rapi)
+            // Detail Booking
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(
@@ -92,25 +93,31 @@ class BookingCard extends StatelessWidget {
             // TOMBOL AKSI
             Row(
               children: [
-                // Tombol QR (Placeholder)
+                // Tombol QR (Membuka Halaman Ticket)
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("QR Code displayed!")),
+                      // --- NAVIGASI KE TIKET SCREEN ---
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              BookingTicketScreen(booking: booking),
+                        ),
                       );
                     },
-                    child: const Text("QR Code"),
+                    child: const Text(
+                      "View Ticket",
+                    ), // Ganti teks agar lebih sesuai
                   ),
                 ),
                 const SizedBox(width: 10),
 
                 // TOMBOL COMPLETE (Hanya muncul jika status Confirmed)
-                // Ini adalah kunci simulasi FIFO: Menyelesaikan pesanan saat ini
                 if (booking.status == 'Confirmed')
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: onComplete, // Panggil fungsi callback
+                      onPressed: onComplete,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
@@ -127,7 +134,7 @@ class BookingCard extends StatelessWidget {
   }
 }
 
-// --- MY BOOKINGS SCREEN UTAMA (Sekarang Stateful) ---
+// --- MY BOOKINGS SCREEN UTAMA ---
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
 
@@ -153,10 +160,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   booking: bookings[index],
                   onComplete: () {
                     // LOGIKA INTI: COMPLETE BOOKING
-                    // Menggunakan setState agar tampilan langsung berubah (rebuild)
                     setState(() {
-                      // Panggil logika di DataManager untuk mengubah status
-                      // dan memicu antrian berikutnya (FIFO)
                       dm.DataManager.completeBooking(bookings[index]);
                     });
 
