@@ -141,13 +141,36 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                // --- BAGIAN INI YANG DIPERBARUI SESUAI PERMINTAAN ---
                 onPressed: () {
+                  // 1. Validasi sederhana
+                  if (_nameController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please enter guest name")),
+                    );
+                    return;
+                  }
+
+                  // 2. Update Status Meja: Langsung jadi merah jika bukan antrian
+                  if (!isQueue && table != null) {
+                    table.isOccupied = true; // UBAH JADI MERAH
+                  }
+
+                  // 3. Kirim data lengkap ke Payment Summary
                   Navigator.pushNamed(
                     context,
                     '/payment_summary',
-                    arguments: {'isQueue': isQueue},
+                    arguments: {
+                      'isQueue': isQueue,
+                      'table': table, // Bawa data meja
+                      'guestName': _nameController.text,
+                      'date': _selectedDate,
+                      'startTime': _selectedStartTime,
+                      'endTime': _selectedEndTime,
+                    },
                   );
                 },
+                // ----------------------------------------------------
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
