@@ -1,3 +1,30 @@
+## 🚀 **v0.3 — UI Update & Booking History Cleanup**
+
+![Version](https://img.shields.io/badge/version-v0.3-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-pre--alpha-yellow?style=for-the-badge)
+![Platform](https://img.shields.io/badge/flutter-3.x-blue?style=for-the-badge&logo=flutter)
+![Build](https://img.shields.io/badge/build-apk-orange?style=for-the-badge)
+
+### 🔧 **What's Changed**
+- Penambahan **ikon aplikasi custom**, menggantikan ikon default Flutter.  
+- Penambahan fitur **hapus riwayat tiket booking** jika status sudah *Completed*.  
+- Penyempurnaan UI agar lebih konsisten dan profesional.
+
+### 🛠 **Technical Improvements**
+- Pembersihan asset lama & penyesuaian struktur untuk ikon baru.  
+- Perbaikan minor untuk stabilitas halaman booking dan history.
+
+### 👥 **Authors**
+- **Rafi**  
+- **Fajrin**  
+- **Ariel**  
+- **Afdal**
+
+### 📜 **Full Changelog**
+
+
+
+
 # 📱 **Booking Meja — Release Notes**
 
 ## 🚀 **v0.2 — Pre-Alpha Update**
