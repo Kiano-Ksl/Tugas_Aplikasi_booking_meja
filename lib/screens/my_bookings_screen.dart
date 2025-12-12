@@ -3,17 +3,19 @@
 import 'package:flutter/material.dart';
 import '../data/data_manager.dart' as dm;
 import '../data/booking_model.dart';
-import 'booking_ticket_screen.dart'; // <--- IMPORT FILE BARU
+import 'booking_ticket_screen.dart';
 
 // --- WIDGET CARD UNTUK SETIAP BOOKING ---
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
-  final VoidCallback onComplete; // Callback saat tombol ditekan
+  final VoidCallback onComplete; // Callback saat tombol Complete ditekan
+  final VoidCallback onDelete; // Callback saat tombol Delete ditekan (BARU)
 
   const BookingCard({
     super.key,
     required this.booking,
     required this.onComplete,
+    required this.onDelete,
   });
 
   @override
@@ -93,11 +95,10 @@ class BookingCard extends StatelessWidget {
             // TOMBOL AKSI
             Row(
               children: [
-                // Tombol QR (Membuka Halaman Ticket)
+                // Tombol View Ticket (Selalu muncul)
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      // --- NAVIGASI KE TIKET SCREEN ---
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -106,14 +107,14 @@ class BookingCard extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text(
-                      "View Ticket",
-                    ), // Ganti teks agar lebih sesuai
+                    child: const Text("View Ticket"),
                   ),
                 ),
                 const SizedBox(width: 10),
 
-                // TOMBOL COMPLETE (Hanya muncul jika status Confirmed)
+                // LOGIKA TOMBOL KANAN:
+                // Jika Confirmed -> Tombol "Complete"
+                // Jika Completed -> Tombol "Delete" (BARU)
                 if (booking.status == 'Confirmed')
                   Expanded(
                     child: ElevatedButton(
@@ -123,6 +124,17 @@ class BookingCard extends StatelessWidget {
                         foregroundColor: Colors.white,
                       ),
                       child: const Text("Complete"),
+                    ),
+                  )
+                else if (booking.status == 'Completed')
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onDelete, // Panggil fungsi hapus
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700, // Warna Merah
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text("Delete"),
                     ),
                   ),
               ],
@@ -156,18 +168,60 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               padding: const EdgeInsets.all(20.0),
               itemCount: bookings.length,
               itemBuilder: (context, index) {
-                return BookingCard(
-                  booking: bookings[index],
-                  onComplete: () {
-                    // LOGIKA INTI: COMPLETE BOOKING
-                    setState(() {
-                      dm.DataManager.completeBooking(bookings[index]);
-                    });
+                // Ambil booking berdasarkan index
+                final booking = bookings[index];
 
+                return BookingCard(
+                  booking: booking,
+                  onComplete: () {
+                    // LOGIKA COMPLETE
+                    setState(() {
+                      dm.DataManager.completeBooking(booking);
+                    });
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Order completed! Queue updated."),
                         duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  onDelete: () {
+                    // LOGIKA DELETE (BARU)
+                    // Tampilkan dialog konfirmasi dulu agar tidak terhapus tidak sengaja
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Delete History"),
+                        content: const Text(
+                          "Are you sure you want to delete this booking history?",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Tutup dialog
+                              setState(() {
+                                // Hapus dari list di DataManager
+                                dm.DataManager.userBookings.remove(booking);
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Booking history deleted."),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text(
+                              "Delete",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
