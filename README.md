@@ -27,8 +27,6 @@ https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/compare/Pre_Alpha_apk..
 
 
 
-# 📱 **Booking Meja — Release Notes**
-
 ## 🚀 **v0.2 — Pre-Alpha Update**
 
 ![Version](https://img.shields.io/badge/version-v0.2-purple?style=for-the-badge)
