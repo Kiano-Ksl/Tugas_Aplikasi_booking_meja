@@ -1,3 +1,4 @@
+// lib/auth/login_screen.dart
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ class LoginScreen extends StatelessWidget {
                 const Icon(Icons.coffee, size: 80, color: primaryColor),
                 const SizedBox(height: 10),
                 const Text(
-                  'Welcome Back',
+                  'Selamat Datang', // GANTI: Welcome Back
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -29,23 +30,39 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                _buildSignInButton(context, 'Continue with Google', true),
+                // Tombol Google
+                _buildSignInButton(
+                  context,
+                  'Lanjut dengan Google',
+                  true,
+                ), // GANTI BAHASA
                 const SizedBox(height: 20),
-                const Text('OR', style: TextStyle(color: Colors.grey)),
+                const Text(
+                  'ATAU',
+                  style: TextStyle(color: Colors.grey),
+                ), // GANTI BAHASA
                 const SizedBox(height: 20),
+
+                // Input Email
                 _buildTextField(
-                  hint: 'Email address',
+                  hint: 'Alamat Email', // GANTI BAHASA
                   icon: Icons.email_outlined,
                 ),
                 const SizedBox(height: 15),
+
+                // Input Password
                 _buildTextField(
-                  hint: 'Password',
+                  hint: 'Kata Sandi', // GANTI BAHASA
                   icon: Icons.lock_outline,
                   isPassword: true,
                 ),
                 const SizedBox(height: 30),
-                _buildSignInButton(context, 'Sign In', false),
+
+                // Tombol Masuk Utama
+                _buildSignInButton(context, 'Masuk', false), // GANTI BAHASA
                 const SizedBox(height: 40),
+
+                // Link Buat Akun
                 _buildCreateAccountLink(),
               ],
             ),
@@ -55,6 +72,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // Widget bantuan untuk bikin tombol biar kodenya rapi
   Widget _buildSignInButton(BuildContext context, String text, bool isGoogle) {
     return SizedBox(
       width: double.infinity,
@@ -93,6 +111,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // Widget bantuan untuk bikin kotak input
   Widget _buildTextField({
     required String hint,
     required IconData icon,
@@ -118,18 +137,19 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // Widget bantuan untuk link "Buat Akun"
   Widget _buildCreateAccountLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account?",
+          "Belum punya akun?", // GANTI BAHASA
           style: TextStyle(color: Colors.grey[600]),
         ),
         TextButton(
           onPressed: () {},
           child: const Text(
-            'Create Account',
+            'Buat Akun', // GANTI BAHASA
             style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
           ),
         ),
