@@ -1,17 +1,13 @@
-// Halaman booking saya
-
 // lib/screens/my_bookings_screen.dart
-
 import 'package:flutter/material.dart';
 import '../data/data_manager.dart' as dm;
 import '../data/booking_model.dart';
 import 'booking_ticket_screen.dart';
 
-// --- WIDGET CARD UNTUK SETIAP BOOKING ---
 class BookingCard extends StatelessWidget {
   final BookingModel booking;
-  final VoidCallback onComplete; // Callback saat tombol Complete ditekan
-  final VoidCallback onDelete; // Callback saat tombol Delete ditekan (BARU)
+  final VoidCallback onComplete;
+  final VoidCallback onDelete;
 
   const BookingCard({
     super.key,
@@ -25,7 +21,6 @@ class BookingCard extends StatelessWidget {
     const Color primaryColor = Color(0xFF5D4037);
     Color statusColor;
 
-    // Menentukan warna status
     switch (booking.status) {
       case 'Confirmed':
         statusColor = Colors.green.shade700;
@@ -48,7 +43,6 @@ class BookingCard extends StatelessWidget {
         padding: const EdgeInsets.all(15.0),
         child: Column(
           children: [
-            // Header: Status dan ID
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -76,8 +70,6 @@ class BookingCard extends StatelessWidget {
               ],
             ),
             const Divider(),
-
-            // Detail Booking
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(
@@ -93,11 +85,8 @@ class BookingCard extends StatelessWidget {
                 '${booking.guestName}\n${booking.startTime} - ${booking.endTime}',
               ),
             ),
-
-            // TOMBOL AKSI
             Row(
               children: [
-                // Tombol View Ticket (Selalu muncul)
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
@@ -113,10 +102,6 @@ class BookingCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-
-                // LOGIKA TOMBOL KANAN:
-                // Jika Confirmed -> Tombol "Complete"
-                // Jika Completed -> Tombol "Delete" (BARU)
                 if (booking.status == 'Confirmed')
                   Expanded(
                     child: ElevatedButton(
@@ -131,9 +116,9 @@ class BookingCard extends StatelessWidget {
                 else if (booking.status == 'Completed')
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: onDelete, // Panggil fungsi hapus
+                      onPressed: onDelete,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade700, // Warna Merah
+                        backgroundColor: Colors.red.shade700,
                         foregroundColor: Colors.white,
                       ),
                       child: const Text("Delete"),
@@ -148,7 +133,6 @@ class BookingCard extends StatelessWidget {
   }
 }
 
-// --- MY BOOKINGS SCREEN UTAMA ---
 class MyBookingsScreen extends StatefulWidget {
   const MyBookingsScreen({super.key});
 
@@ -159,7 +143,6 @@ class MyBookingsScreen extends StatefulWidget {
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
-    // Mengambil data langsung dari DataManager
     final List<BookingModel> bookings = dm.DataManager.userBookings;
 
     return Scaffold(
@@ -170,13 +153,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               padding: const EdgeInsets.all(20.0),
               itemCount: bookings.length,
               itemBuilder: (context, index) {
-                // Ambil booking berdasarkan index
                 final booking = bookings[index];
-
                 return BookingCard(
                   booking: booking,
                   onComplete: () {
-                    // LOGIKA COMPLETE
                     setState(() {
                       dm.DataManager.completeBooking(booking);
                     });
@@ -188,8 +168,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     );
                   },
                   onDelete: () {
-                    // LOGIKA DELETE (BARU)
-                    // Tampilkan dialog konfirmasi dulu agar tidak terhapus tidak sengaja
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -204,10 +182,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.pop(context); // Tutup dialog
+                              Navigator.pop(context);
                               setState(() {
-                                // Hapus dari list di DataManager
                                 dm.DataManager.userBookings.remove(booking);
+                                // --- SIMPAN PERUBAHAN ---
+                                dm.DataManager.saveBookings();
                               });
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

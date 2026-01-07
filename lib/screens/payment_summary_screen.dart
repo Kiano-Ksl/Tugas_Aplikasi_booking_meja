@@ -1,11 +1,8 @@
-// halaman pembayaran
-
 // lib/screens/payment_summary_screen.dart
 import 'package:flutter/material.dart';
 import '../data/data_manager.dart' as dm;
 import '../data/booking_model.dart';
 
-// Definisi warna di tingkat global agar bisa diakses semua method
 const Color primaryColor = Color(0xFF5D4037);
 
 class PaymentSummaryScreen extends StatefulWidget {
@@ -21,7 +18,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // MENANGKAP DATA DARI HALAMAN SEBELUMNYA (Booking Form)
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final bool isQueue = args['isQueue'];
@@ -31,7 +27,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     final TimeOfDay startTime = args['startTime'] ?? TimeOfDay.now();
     final TimeOfDay endTime = args['endTime'] ?? TimeOfDay.now();
 
-    // Format jam agar rapi
     final String timeSlot =
         '${startTime.format(context)} - ${endTime.format(context)}';
 
@@ -42,7 +37,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Ringkasan Booking ---
             const Text(
               'Booking Details',
               style: TextStyle(
@@ -52,13 +46,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            // TAMPILKAN DATA ASLI (Bukan Placeholder lagi)
             _buildDetailRow('Table Number', table?.number ?? '-'),
             _buildDetailRow('Time Slot', timeSlot),
             _buildDetailRow('Guest Name', guestName),
             const Divider(height: 30),
 
-            // --- Rincian Biaya ---
             const Text(
               'Cost Breakdown',
               style: TextStyle(
@@ -69,10 +61,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             ),
             const SizedBox(height: 10),
             _buildDetailRow('Deposit Fee', 'IDR 50.000', isTotal: false),
-
             const Divider(height: 30),
 
-            // --- Total Pembayaran ---
             _buildDetailRow(
               'TOTAL PAYMENT',
               'IDR ${_totalAmount.toStringAsFixed(3)}',
@@ -80,7 +70,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             ),
             const SizedBox(height: 30),
 
-            // --- Pilih Metode Pembayaran ---
             const Text(
               'Select Payment Method',
               style: TextStyle(
@@ -109,14 +98,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
             const SizedBox(height: 40),
 
-            // Tombol Konfirmasi dan Bayar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _selectedPaymentMethod == null
                     ? null
                     : () {
-                        // 1. SIMPAN DATA KE DATA MANAGER
                         _processBookingData(
                           table,
                           guestName,
@@ -125,8 +112,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                           endTime,
                           isQueue,
                         );
-
-                        // 2. JALANKAN PROSES PEMBAYARAN UI
                         _startPaymentProcess(context);
                       },
                 style: ElevatedButton.styleFrom(
@@ -146,7 +131,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     );
   }
 
-  // FUNGSI BARU: Menyimpan data ke List UserBookings di DataManager
   void _processBookingData(
     dm.Table? table,
     String name,
@@ -156,24 +140,25 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     bool isQueue,
   ) {
     final newBooking = BookingModel(
-      id: 'B${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}', // ID Unik acak
+      id: 'B${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
       tableNumber: table?.number ?? '?',
       guestName: name,
       date: date,
       startTime: start.format(context),
       endTime: end.format(context),
       totalAmount: 50.00,
-      status: isQueue ? 'Queueing' : 'Confirmed', // Status sesuai kondisi
+      status: isQueue ? 'Queueing' : 'Confirmed',
       qrCodeData: 'https://qr.code/dummy',
     );
 
-    // Masukkan ke database list statis
     dm.DataManager.userBookings.add(newBooking);
 
-    // Jika ini Queue, masukkan juga ke Linked List (Opsional, untuk tugas struktur data)
     if (isQueue) {
       dm.DataManager.bookingQueue.enqueue(newBooking);
     }
+
+    // --- SIMPAN DATA AGAR TIDAK HILANG ---
+    dm.DataManager.saveBookings();
   }
 
   Widget _buildDetailRow(String label, String value, {bool isTotal = false}) {
@@ -241,7 +226,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
   void _startPaymentProcess(BuildContext context) {
-    // Foto 6: Loading screen
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -266,7 +250,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
   void _showSuccessPopup(BuildContext context) {
-    // Foto 7: Success screen
     showDialog(
       context: context,
       barrierDismissible: false,

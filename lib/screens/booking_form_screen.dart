@@ -1,8 +1,7 @@
-// Halaman Format pemesanan meja
-
 // lib/screens/booking_form_screen.dart
 import 'package:flutter/material.dart';
 import '../data/data_manager.dart' as dm;
+import '../data/booking_model.dart';
 
 class BookingFormScreen extends StatefulWidget {
   const BookingFormScreen({super.key});
@@ -19,6 +18,12 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   TimeOfDay? _selectedStartTime;
   TimeOfDay? _selectedEndTime;
 
+  // --- KONFIGURASI BATASAN ---
+  final int _minNameLength = 3;
+  final int _minPhoneLength = 10;
+  final int _minDurationMinutes = 60;
+  final int _maxDurationMinutes = 180;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -30,11 +35,13 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     required String label,
     required TextEditingController controller,
     required IconData icon,
+    bool isNumber = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15.0),
       child: TextField(
         controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Icon(icon, color: Theme.of(context).primaryColor),
@@ -77,6 +84,74 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     }
   }
 
+  int _toMinutes(TimeOfDay time) {
+    return (time.hour * 60) + time.minute;
+  }
+
+  // --- FUNGSI CEK BENTROK JADWAL ---
+  bool _isTimeSlotAvailable(
+    String tableNumber,
+    DateTime date,
+    TimeOfDay start,
+    TimeOfDay end,
+  ) {
+    int newStart = _toMinutes(start);
+    int newEnd = _toMinutes(end);
+
+    for (var existingBooking in dm.DataManager.userBookings) {
+      // 1. Cek Meja
+      if (existingBooking.tableNumber != tableNumber) continue;
+
+      // 2. Cek Tanggal
+      bool isSameDay =
+          existingBooking.date.year == date.year &&
+          existingBooking.date.month == date.month &&
+          existingBooking.date.day == date.day;
+
+      if (!isSameDay) continue;
+
+      // 3. Cek Status
+      if (existingBooking.status == 'Cancelled' ||
+          existingBooking.status == 'Completed')
+        continue;
+
+      // Parsing waktu dari database
+      TimeOfDay existingStartObj = _parseTime(existingBooking.startTime);
+      TimeOfDay existingEndObj = _parseTime(existingBooking.endTime);
+
+      int existingStart = _toMinutes(existingStartObj);
+      int existingEnd = _toMinutes(existingEndObj);
+
+      // 4. Rumus Bentrok
+      if (newStart < existingEnd && newEnd > existingStart) {
+        return false; // Ada tabrakan waktu!
+      }
+    }
+
+    return true; // Aman
+  }
+
+  TimeOfDay _parseTime(String timeString) {
+    try {
+      final cleanString = timeString.replaceAll(RegExp(r'[a-zA-Z\s]'), '');
+      final parts = cleanString.split(":");
+
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+
+      if (timeString.toUpperCase().contains("PM") && hour < 12) {
+        hour += 12;
+      }
+      if (timeString.toUpperCase().contains("AM") && hour == 12) {
+        hour = 0;
+      }
+
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      return TimeOfDay.now();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final table = ModalRoute.of(context)?.settings.arguments as dm.Table?;
@@ -110,9 +185,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               label: 'Phone Number',
               controller: _phoneController,
               icon: Icons.phone,
+              isNumber: true,
             ),
 
-            // Pemilihan Tanggal
             _buildTimePickerTile(
               label: 'Booking Date',
               icon: Icons.calendar_today,
@@ -122,7 +197,6 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               onTap: () => _selectDate(context),
             ),
 
-            // Pemilihan Waktu
             _buildTimePickerTile(
               label: 'Start Time',
               icon: Icons.access_time,
@@ -142,26 +216,102 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  //  Validasi sederhana
-                  if (_nameController.text.isEmpty) {
+                  // --- VALIDASI INPUT ---
+                  if (_nameController.text.length < _minNameLength) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Please enter guest name")),
+                      SnackBar(
+                        content: Text(
+                          "Name must be at least $_minNameLength letters",
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+                  if (_phoneController.text.length < _minPhoneLength) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Phone must be at least $_minPhoneLength digits",
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+                  if (_selectedDate == null ||
+                      _selectedStartTime == null ||
+                      _selectedEndTime == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please select date and time duration"),
+                      ),
                     );
                     return;
                   }
 
-                  //  Update Status Meja: Langsung jadi merah
-                  if (!isQueue && table != null) {
-                    table.isOccupied = true; // UBAH JADI MERAH
+                  // --- VALIDASI DURASI ---
+                  int startMin = _toMinutes(_selectedStartTime!);
+                  int endMin = _toMinutes(_selectedEndTime!);
+                  int duration = endMin - startMin;
+
+                  if (endMin <= startMin) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("End time must be after start time"),
+                      ),
+                    );
+                    return;
                   }
 
-                  //  Kirim data lengkap ke Payment Summary
+                  if (duration < _minDurationMinutes) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Minimum booking duration is 1 hour"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (duration > _maxDurationMinutes) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Maximum booking duration is 3 hours"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // --- VALIDASI BENTROK (OVERLAP) ---
+                  if (table != null) {
+                    bool available = _isTimeSlotAvailable(
+                      table.number,
+                      _selectedDate!,
+                      _selectedStartTime!,
+                      _selectedEndTime!,
+                    );
+
+                    if (!available) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Time slot conflict! This table is booked at that time.",
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                  }
+
+                  // --- PERBAIKAN: JANGAN UBAH STATUS MEJA DI SINI ---
+                  // Kode table.isOccupied = true; SUDAH DIHAPUS.
+                  // Status meja akan berubah nanti setelah pembayaran selesai.
+
                   Navigator.pushNamed(
                     context,
                     '/payment_summary',
                     arguments: {
                       'isQueue': isQueue,
-                      'table': table, // Bawa data meja
+                      'table': table,
                       'guestName': _nameController.text,
                       'date': _selectedDate,
                       'startTime': _selectedStartTime,
@@ -169,7 +319,6 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                     },
                   );
                 },
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
