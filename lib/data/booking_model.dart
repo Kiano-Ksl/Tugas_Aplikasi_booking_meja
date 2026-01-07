@@ -1,5 +1,6 @@
 // lib/data/booking_model.dart
 class BookingModel {
+  // Ini semua variabel buat nyimpen info satu pesanan
   final String id;
   final String tableNumber;
   final String qrCodeData;
@@ -10,6 +11,7 @@ class BookingModel {
   final double totalAmount;
   String status;
 
+  // Constructor: Buat ngerakit datanya pas baru dipesan
   BookingModel({
     required this.id,
     required this.tableNumber,
@@ -22,13 +24,13 @@ class BookingModel {
     required this.qrCodeData,
   });
 
-  // MENGUBAH DATA MENJADI TEXT (JSON) - Untuk Disimpan
+  // FUNGSI SAKTI 1: Ngubah objek data jadi teks (JSON) biar bisa disimpan di HP
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'tableNumber': tableNumber,
       'guestName': guestName,
-      'date': date.toIso8601String(),
+      'date': date.toIso8601String(), // Tanggal dibikin jadi teks standar
       'startTime': startTime,
       'endTime': endTime,
       'totalAmount': totalAmount,
@@ -37,13 +39,13 @@ class BookingModel {
     };
   }
 
-  // MENGUBAH TEXT (JSON) MENJADI DATA - Untuk Dimuat
+  // FUNGSI SAKTI 2: Ngambil teks (JSON) dari HP terus dibalikin lagi jadi objek data
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
       id: json['id'],
       tableNumber: json['tableNumber'],
       guestName: json['guestName'],
-      date: DateTime.parse(json['date']),
+      date: DateTime.parse(json['date']), // Teks dibalikin jadi format tanggal
       startTime: json['startTime'],
       endTime: json['endTime'],
       totalAmount: json['totalAmount'],

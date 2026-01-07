@@ -1,106 +1,109 @@
 // lib/data/data_manager.dart
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Paket buat simpan data di HP
 import 'booking_queue.dart';
 import 'booking_model.dart';
 
+// Cetakan buat data Meja
 class Table {
   final String number;
   final int capacity;
-  bool isOccupied;
+  bool isOccupied; // Status: Lagi dipake atau kosong?
 
   Table(this.number, this.capacity, {this.isOccupied = false});
 }
 
 class DataManager {
+  // Panggil sistem antrian kita tadi
   static final BookingQueue bookingQueue = BookingQueue();
 
+  // Daftar meja yang ada di kafe kita
   static final List<Table> cafeTables = [
-    Table('T1', 2, isOccupied: false),
-    Table('T2', 4, isOccupied: false),
-    Table('T3', 2, isOccupied: false),
-    Table('T4', 4, isOccupied: false),
-    Table('T5', 6, isOccupied: false),
-    Table('T6', 2, isOccupied: false),
+    Table('T1', 2),
+    Table('T2', 4),
+    Table('T3', 2),
+    Table('T4', 4),
+    Table('T5', 6),
+    Table('T6', 2),
   ];
 
+  // List buat nampung semua pesanan user
   static List<BookingModel> userBookings = [];
 
-  // --- 1. FUNGSI MENYIMPAN DATA (SAVE) ---
+  // FUNGSI 1: SIMPAN DATA KE HP (Biar gak ilang pas aplikasi ditutup)
   static Future<void> saveBookings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Ubah data jadi JSON
+    // Ngubah semua daftar pesanan jadi teks (JSON)
     final String encodedData = jsonEncode(
       userBookings.map((booking) => booking.toJson()).toList(),
     );
 
-    // Simpan ke memori HP
+    // Titip simpan teks tadi di memori HP
     await prefs.setString('saved_bookings', encodedData);
 
-    // --- PERBAIKAN DI SINI ---
-    // Update warna meja segera setelah data disimpan!
+    // Langsung update warna meja biar sinkron
     _updateTableStatus();
 
-    print("Data berhasil disimpan dan status meja diperbarui!");
+    print("Data aman tersimpan di HP!");
   }
 
-  // --- 2. FUNGSI MEMUAT DATA (LOAD) ---
+  // FUNGSI 2: AMBIL DATA DARI HP (Pas aplikasi baru dibuka)
   static Future<void> loadBookings() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? encodedData = prefs.getString('saved_bookings');
+    final String? encodedData = prefs.getString(
+      'saved_bookings',
+    ); // Ambil teksnya
 
     if (encodedData != null) {
       final List<dynamic> decodedData = jsonDecode(encodedData);
+      // Ubah balik teks jadi daftar pesanan asli
       userBookings = decodedData
           .map((item) => BookingModel.fromJson(item))
           .toList();
 
-      // Update warna meja saat aplikasi baru dibuka
+      // Update warna meja biar gak ijo semua
       _updateTableStatus();
     }
   }
 
-  // Helper: Cek semua booking, kalau ada yang aktif, bikin meja jadi Merah
+  // FUNGSI 3: UPDATE WARNA MEJA (Hijau/Merah)
   static void _updateTableStatus() {
-    // 1. Reset semua meja jadi Hijau dulu
+    // Reset dulu semua meja jadi ijo (kosong)
     for (var table in cafeTables) {
       table.isOccupied = false;
     }
 
-    // 2. Cek booking satu per satu
+    // Cek satu-satu pesanan user
     for (var booking in userBookings) {
-      // Jika statusnya Confirmed atau Queueing, berarti meja sedang dipakai
+      // Kalau ada pesanan yang 'Confirmed' atau lagi 'Antri', mejanya jadi Merah
       if (booking.status == 'Confirmed' || booking.status == 'Queueing') {
-        // Cari meja yang sesuai nomornya
         try {
           var table = cafeTables.firstWhere(
             (t) => t.number == booking.tableNumber,
           );
-          table.isOccupied = true; // Ubah jadi Merah
+          table.isOccupied = true; // MEJA JADI MERAH
         } catch (e) {
-          print(
-            "Error: Meja ${booking.tableNumber} tidak ditemukan di cafeTables",
-          );
+          print("Meja gak ketemu!");
         }
       }
     }
   }
 
-  // Logika Complete Booking
+  // FUNGSI 4: SELESAIKAN PESANAN
   static void completeBooking(BookingModel booking) {
-    booking.status = 'Completed';
+    booking.status = 'Completed'; // Ganti status jadi Selesai
 
-    // Cek apakah ada antrian untuk meja ini?
+    // Cek, ada gak orang yang lagi antri di meja ini?
     try {
       BookingModel nextInLine = userBookings.firstWhere(
         (b) => b.tableNumber == booking.tableNumber && b.status == 'Queueing',
       );
 
-      // Kalau ada, status dia naik jadi Confirmed (Meja tetap Merah)
+      // Kalau ada, status dia naik jadi Confirmed (Gantian dia yang makan)
       nextInLine.status = 'Confirmed';
     } catch (e) {
-      // Kalau tidak ada antrian, meja jadi Hijau (logika ini akan di-override oleh _updateTableStatus saat save, tapi tidak masalah)
+      // Kalau gak ada yang antri, meja balik jadi ijo
       try {
         Table table = cafeTables.firstWhere(
           (t) => t.number == booking.tableNumber,
@@ -109,7 +112,7 @@ class DataManager {
       } catch (e) {}
     }
 
-    // SIMPAN PERUBAHAN (Otomatis update warna meja juga)
+    // Save setiap ada perubahan biar permanen
     saveBookings();
   }
 }
