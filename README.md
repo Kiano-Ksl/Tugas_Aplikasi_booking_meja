@@ -49,12 +49,6 @@ https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/compare/Pre_Alpha_apk3.
 - Pembersihan asset lama & penyesuaian struktur untuk ikon baru.  
 - Perbaikan minor untuk stabilitas halaman booking dan history.
 
-### 👥 **Authors**
-- **Rafi**  
-- **Fajrin**  
-- **Ariel**  
-- **Afdal**
-
 ### 📜 **Full Changelog**
 https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/compare/Pre_Alpha_apk...Pre_Alpha_apk3
 
@@ -78,12 +72,6 @@ https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/compare/Pre_Alpha_apk..
 - Refactor beberapa komponen untuk modularitas  
 - Perbaikan bug minor  
 
-### 👥 **Authors**
-- **Rafi**  
-- **Fajrin**  
-- **Ariel**  
-- **Afdal**
-
 ### 📜 **Full Changelog**
 https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/commits/Pre_Alpha_apk2
 
@@ -105,12 +93,6 @@ Rilis awal dari aplikasi **Booking Meja**, versi pertama yang menyediakan fitur 
 - Melihat daftar meja  
 - Melakukan booking meja  
 - Halaman home dan navigasi dasar
-
-### 👥 **Authors**
-- **Rafi**  
-- **Fajrin**  
-- **Ariel**  
-- **Afdal**
 
 ### 📜 **Full Changelog**
 https://github.com/R4ff-27/booking_meja/commits/demo_apk
