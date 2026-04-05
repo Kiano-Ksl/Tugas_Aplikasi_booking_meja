@@ -28,6 +28,8 @@
 - **Ariel**  
 - **Afdal**
 
+📊 [Lihat Slide Presentasi (PDF)](https://drive.google.com/file/d/1JD1XX1V8Z1AoX0We50Ian4pKfSiYq1Ul/view?usp=sharing)
+
 ### 📜 **Full Changelog**
 https://github.com/Kiano-Ksl/Tugas_Aplikasi_booking_meja/compare/Pre_Alpha_apk3...Pre_Alpha_apk4
 
