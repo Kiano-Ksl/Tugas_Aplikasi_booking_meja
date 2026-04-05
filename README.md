@@ -1,4 +1,4 @@
-# 📱 **Booking Meja — Release Notes**
+# 📱 **Booking Meja — Release Notes*
 ## 🚀 **v0.4 — Persistence & Smart Booking Update**
 
 ![Version](https://img.shields.io/badge/version-v0.4-red?style=for-the-badge)
