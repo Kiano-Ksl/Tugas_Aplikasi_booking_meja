@@ -20,7 +20,7 @@
 - Perbaikan bug perubahan status meja setelah pembayaran berhasil.
 - Perbaikan logika perhitungan antrian agar spesifik per meja.
 - Optimasi penyimpanan dan pemanggilan data booking.
-- Peningkatan stabilitas aplikasi secara keseluruhan
+- Peningkatan stabilitas aplikasi secara keseluruhan.
 
 ### 👥 **Authors**
 - **Rafi**  
